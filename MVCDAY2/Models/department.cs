@@ -9,8 +9,15 @@ namespace MVCDAY2.Models
         public int? Number { get; set; }
         [StringLength(100)]
         public string? Name { get; set; }
+        [Column(TypeName = "date")]
+        public DateTime? startdate { get; set; }
 
-        public List<locations> locations { get; set; }
+        public int? employeeSSN { get; set; } 
+
+        public List<locations>? locations { get; set; }
         public List<project>? projects { get; set; }
+        public employee? employee { get; set; }
+        public List<employee>? employees { get; set; }
+
     }
 }

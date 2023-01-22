@@ -17,7 +17,9 @@ namespace MVCDAY2.Migrations
                 {
                     Number = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    startdate = table.Column<DateTime>(type: "date", nullable: true),
+                    employeeSSN = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -33,22 +35,35 @@ namespace MVCDAY2.Migrations
                     Fname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Minit = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Lname = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Bdate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Bdate = table.Column<DateTime>(type: "date", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Gender = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    Salary = table.Column<decimal>(type: "money", nullable: false),
-                    super = table.Column<int>(type: "int", nullable: false)
+                    Salary = table.Column<decimal>(type: "money", nullable: true),
+                    super = table.Column<int>(type: "int", nullable: true),
+                    Department2Number = table.Column<int>(type: "int", nullable: true),
+                    deptid = table.Column<int>(type: "int", nullable: true),
+                    employeeSSN = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employees", x => x.SSN);
+                    table.ForeignKey(
+                        name: "FK_Employees_Departments_Department2Number",
+                        column: x => x.Department2Number,
+                        principalTable: "Departments",
+                        principalColumn: "Number");
+                    table.ForeignKey(
+                        name: "FK_Employees_Employees_employeeSSN",
+                        column: x => x.employeeSSN,
+                        principalTable: "Employees",
+                        principalColumn: "SSN");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Locations",
                 columns: table => new
                 {
-                    location = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    location = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     deptnum = table.Column<int>(type: "int", nullable: false),
                     departmentNumber = table.Column<int>(type: "int", nullable: true)
                 },
@@ -88,11 +103,11 @@ namespace MVCDAY2.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Sex = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    Sex = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     Birthdate = table.Column<DateTime>(type: "date", nullable: true),
                     Relationship = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ESSN = table.Column<int>(type: "int", nullable: false),
+                    ESSN = table.Column<int>(type: "int", nullable: true),
                     EmployeeSSN = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -111,7 +126,7 @@ namespace MVCDAY2.Migrations
                 {
                     ESSN = table.Column<int>(type: "int", nullable: false),
                     Pnum = table.Column<int>(type: "int", nullable: false),
-                    Hours = table.Column<int>(type: "int", nullable: false),
+                    Hours = table.Column<int>(type: "int", nullable: true),
                     ProjectNumber = table.Column<int>(type: "int", nullable: true),
                     EmployeeSSN = table.Column<int>(type: "int", nullable: true)
                 },
@@ -131,9 +146,26 @@ namespace MVCDAY2.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Departments_employeeSSN",
+                table: "Departments",
+                column: "employeeSSN",
+                unique: true,
+                filter: "[employeeSSN] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Dependents_EmployeeSSN",
                 table: "Dependents",
                 column: "EmployeeSSN");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_Department2Number",
+                table: "Employees",
+                column: "Department2Number");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_employeeSSN",
+                table: "Employees",
+                column: "employeeSSN");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Locations_departmentNumber",
@@ -154,11 +186,22 @@ namespace MVCDAY2.Migrations
                 name: "IX_Works_ProjectNumber",
                 table: "Works",
                 column: "ProjectNumber");
+
+            migrationBuilder.AddForeignKey(
+                name: "FK_Departments_Employees_employeeSSN",
+                table: "Departments",
+                column: "employeeSSN",
+                principalTable: "Employees",
+                principalColumn: "SSN");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropForeignKey(
+                name: "FK_Departments_Employees_employeeSSN",
+                table: "Departments");
+
             migrationBuilder.DropTable(
                 name: "Dependents");
 
@@ -169,10 +212,10 @@ namespace MVCDAY2.Migrations
                 name: "Works");
 
             migrationBuilder.DropTable(
-                name: "Employees");
+                name: "Projects");
 
             migrationBuilder.DropTable(
-                name: "Projects");
+                name: "Employees");
 
             migrationBuilder.DropTable(
                 name: "Departments");

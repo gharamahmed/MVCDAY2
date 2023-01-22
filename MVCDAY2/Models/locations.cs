@@ -6,8 +6,9 @@ namespace MVCDAY2.Models
     public class locations
     {
         [StringLength(100)]
-        public string location{ get; set; }
-        [ForeignKey("department")]
-         public int deptnum { get; set; }
+        public string? location{ get; set; }
+        [ForeignKey("Department")]
+         public int? deptnum { get; set; }
+        public department? Department { get; set; }
     }
 }

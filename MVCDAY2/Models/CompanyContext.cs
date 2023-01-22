@@ -22,6 +22,8 @@ namespace MVCDAY2.Models
             modelBuilder.Entity<works_on>().HasKey("ESSN", "Pnum");//composite primary key
             modelBuilder.Entity<locations>().HasKey("deptnum", "location");
             //modelBuilder.Entity<employee>().HasOne(s=>s.super);
+            modelBuilder.Entity<department>().HasOne(d=>d.employee).WithOne(e=>e.Department);
+            modelBuilder.Entity<department>().HasMany(d=>d.employees).WithOne(e=>e.Department2);
 
         }
 

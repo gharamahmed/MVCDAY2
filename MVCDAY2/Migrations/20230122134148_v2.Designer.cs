@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MVCDAY2.Migrations
 {
     [DbContext(typeof(CompanyContext))]
-    [Migration("20230121082127_v2")]
+    [Migration("20230122134148_v2")]
     partial class v2
     {
         /// <inheritdoc />
@@ -37,7 +37,17 @@ namespace MVCDAY2.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int?>("employeeSSN")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("startdate")
+                        .HasColumnType("date");
+
                     b.HasKey("Number");
+
+                    b.HasIndex("employeeSSN")
+                        .IsUnique()
+                        .HasFilter("[employeeSSN] IS NOT NULL");
 
                     b.ToTable("Departments");
                 });
@@ -56,9 +66,6 @@ namespace MVCDAY2.Migrations
                     b.Property<int?>("ESSN")
                         .HasColumnType("int");
 
-                    b.Property<int?>("EmployeeSSN")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
@@ -72,7 +79,7 @@ namespace MVCDAY2.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("EmployeeSSN");
+                    b.HasIndex("ESSN");
 
                     b.ToTable("Dependents");
                 });
@@ -90,7 +97,10 @@ namespace MVCDAY2.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("Bdate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
+
+                    b.Property<int?>("Department2Number")
+                        .HasColumnType("int");
 
                     b.Property<string>("Fname")
                         .HasMaxLength(50)
@@ -111,10 +121,20 @@ namespace MVCDAY2.Migrations
                     b.Property<decimal?>("Salary")
                         .HasColumnType("money");
 
+                    b.Property<int?>("deptid")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("employeeSSN")
+                        .HasColumnType("int");
+
                     b.Property<int?>("super")
                         .HasColumnType("int");
 
                     b.HasKey("SSN");
+
+                    b.HasIndex("Department2Number");
+
+                    b.HasIndex("employeeSSN");
 
                     b.ToTable("Employees");
                 });
@@ -128,12 +148,7 @@ namespace MVCDAY2.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("departmentNumber")
-                        .HasColumnType("int");
-
                     b.HasKey("deptnum", "location");
-
-                    b.HasIndex("departmentNumber");
 
                     b.ToTable("Locations");
                 });
@@ -166,16 +181,16 @@ namespace MVCDAY2.Migrations
 
             modelBuilder.Entity("MVCDAY2.Models.works_on", b =>
                 {
-                    b.Property<int>("ESSN")
+                    b.Property<int?>("ESSN")
                         .HasColumnType("int");
 
-                    b.Property<int>("Pnum")
+                    b.Property<int?>("Pnum")
                         .HasColumnType("int");
 
                     b.Property<int?>("EmployeeSSN")
                         .HasColumnType("int");
 
-                    b.Property<int>("Hours")
+                    b.Property<int?>("Hours")
                         .HasColumnType("int");
 
                     b.Property<int?>("ProjectNumber")
@@ -190,20 +205,46 @@ namespace MVCDAY2.Migrations
                     b.ToTable("Works");
                 });
 
+            modelBuilder.Entity("MVCDAY2.Models.department", b =>
+                {
+                    b.HasOne("MVCDAY2.Models.employee", "employee")
+                        .WithOne("Department")
+                        .HasForeignKey("MVCDAY2.Models.department", "employeeSSN");
+
+                    b.Navigation("employee");
+                });
+
             modelBuilder.Entity("MVCDAY2.Models.dependent", b =>
                 {
                     b.HasOne("MVCDAY2.Models.employee", "Employee")
                         .WithMany("dependents")
-                        .HasForeignKey("EmployeeSSN");
+                        .HasForeignKey("ESSN");
 
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("MVCDAY2.Models.employee", b =>
+                {
+                    b.HasOne("MVCDAY2.Models.department", "Department2")
+                        .WithMany("employees")
+                        .HasForeignKey("Department2Number");
+
+                    b.HasOne("MVCDAY2.Models.employee", null)
+                        .WithMany("supervisor")
+                        .HasForeignKey("employeeSSN");
+
+                    b.Navigation("Department2");
+                });
+
             modelBuilder.Entity("MVCDAY2.Models.locations", b =>
                 {
-                    b.HasOne("MVCDAY2.Models.department", null)
+                    b.HasOne("MVCDAY2.Models.department", "Department")
                         .WithMany("locations")
-                        .HasForeignKey("departmentNumber");
+                        .HasForeignKey("deptnum")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Department");
                 });
 
             modelBuilder.Entity("MVCDAY2.Models.project", b =>
@@ -232,6 +273,8 @@ namespace MVCDAY2.Migrations
 
             modelBuilder.Entity("MVCDAY2.Models.department", b =>
                 {
+                    b.Navigation("employees");
+
                     b.Navigation("locations");
 
                     b.Navigation("projects");
@@ -239,7 +282,11 @@ namespace MVCDAY2.Migrations
 
             modelBuilder.Entity("MVCDAY2.Models.employee", b =>
                 {
+                    b.Navigation("Department");
+
                     b.Navigation("dependents");
+
+                    b.Navigation("supervisor");
 
                     b.Navigation("works_Ons");
                 });

@@ -6,10 +6,13 @@ namespace MVCDAY2
         {
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllersWithViews();
+            builder.Services.AddSession(options =>
+                options.IdleTimeout = TimeSpan.FromDays(2));
             var app = builder.Build();
-            app.MapDefaultControllerRoute();
+            app.UseSession();
 
-           // app.MapGet("/", () => "Hello World!");
+            // app.MapGet("/", () => "Hello World!");
+            app.MapDefaultControllerRoute();
 
             app.Run();
         }

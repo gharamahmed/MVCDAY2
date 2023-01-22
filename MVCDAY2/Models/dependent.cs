@@ -14,7 +14,7 @@ namespace MVCDAY2.Models
         public DateTime? Birthdate{ get; set; }
         public string? Relationship { get; set; }
 
-        [ForeignKey("employee")]
+        [ForeignKey("Employee")]
         public int? ESSN { get; set; }
         public employee?Employee { get; set; }
     }

@@ -52,5 +52,25 @@ namespace MVCDAY2.Controllers
             db.SaveChanges();
             return  RedirectToAction("GetAll");
         }
+
+        public IActionResult Login (){
+            return View("Login");
+            
+        }
+        public IActionResult Check(employee emp) {
+            employee e = db.Employees.Where(e => e.SSN == emp.SSN && e.Fname == emp.Fname).Single();
+            if (e != null)
+            {
+                HttpContext.Session.SetInt32("SSN", e.SSN);
+               // return RedirectToAction("/Home/Index");
+            }
+            return RedirectToAction("Profile");
+        }
+        public IActionResult Profile()
+        {
+            employee emp = db.Employees.Where(e => e.SSN==HttpContext.Session.GetInt32("SSN")).Single();
+            return View("Profile", emp);
+
+        }
     }
 }
